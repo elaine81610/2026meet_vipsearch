@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>貴賓、講師報到查詢 | VIP & Speaker Check-in</title>
+
+  <style>
+    /* ==========================================================================
+       1. NATIVE APPLE / MODERN SANS-SERIF TYPOGRAPHY & BASE TOKENS (100% OFFLINE)
+       ========================================================================== */
+    :root {
+      --bg-page: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-subtle: #f8fafc;
+      --border-light: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --accent: #4338ca;
+      --accent-hover: #3730a3;
+      --accent-soft: #eef2ff;
+      --accent-border: #c7d2fe;
+      --success-bg: #dcfce7;
+      --success-text: #15803d;
+      --success-border: #86efac;
+      --warn-bg: #ffedd5;
+      --warn-text: #c2410c;
+      --warn-border: #fdba74;
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 18px 40px rgba(15, 23, 42, 0.14);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang TC", "Hiragino Sans", "Apple SD Gothic Neo", "Microsoft JhengHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ==========================================================================
+       2. TOP HEADER & 4-LANGUAGE SWITCHER
+       ========================================================================== */
+    .top-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      line-height: 1.25;
+    }
+
+    .brand-subtitle {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .lang-switcher {
+      display: inline-flex;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 16px;
+      border: 1px solid var(--border-light);
+      gap: 2px;
+    }
+
+    .lang-btn {
+      min-height: 42px;
+      padding: 0 13px;
+      border: none;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .lang-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .lang-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 800;
+      box-shadow: 0 2px 8px rgba(67, 56, 202, 0.3);
+    }
+
+    .gear-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      border: 1px solid var(--border-light);
+      background: #f8fafc;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .gear-btn:hover {
+      background: #e2e8f0;
+      color: var(--text-primary);
+    }
+
+    /* ==========================================================================
+       3. MAIN CONTAINER & INSTRUCTION BANNER
+       ========================================================================== */
+    .main-container {
+      flex: 1;
+      width: 100%;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 20px 16px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      padding: 20px;
+    }
+
+    @media (min-width: 640px) {
+      .card {
+        padding: 26px;
+      }
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 720px) {
+      .steps-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: var(--radius-lg);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-light);
+    }
+
+    .step-badge {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 0.92rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-item.step-turn .step-badge {
+      background: #059669;
+    }
+
+    .step-title {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.35;
+    }
+
+    .step-desc {
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    /* ==========================================================================
+       4. SEARCH BAR & CANDIDATE RESULTS LIST
+       ========================================================================== */
+    .search-header-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .search-label {
+      font-size: 0.92rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: var(--text-secondary);
+    }
+
+    .quick-demo-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--accent-border);
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .quick-demo-btn:hover {
+      background: #e0e7ff;
+    }
+
+    .search-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 18px;
+      color: #94a3b8;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 68px;
+      padding: 0 62px 0 54px;
+      font-family: inherit;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      background: var(--bg-subtle);
+      border: 2.5px solid var(--border-medium);
+      border-radius: var(--radius-lg);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    @media (min-width: 640px) {
+      .search-input {
+        height: 76px;
+        font-size: 1.5rem;
+        padding-left: 58px;
+      }
+    }
+
+    .search-input::placeholder {
+      color: #94a3b8;
+      font-weight: 500;
+      font-size: 1.05rem;
+    }
+
+    .search-input:focus {
+      background: #ffffff;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(67, 56, 202, 0.14);
+    }
+
+    .clear-input-btn {
+      position: absolute;
+      right: 12px;
+      width: 46px;
+      height: 46px;
+      border: none;
+      border-radius: 13px;
+      background: #e2e8f0;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .clear-input-btn:hover {
+      background: #cbd5e1;
+    }
+
+    /* Candidate List */
+    .candidates-section {
+      margin-top: 18px;
+    }
+
+    .candidates-prompt {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .candidates-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .candidate-item {
+      width: 100%;
+      min-width: 0;
+      text-align: left;
+      padding: 14px 16px;
+      border-radius: var(--radius-lg);
+      border: 2px solid var(--border-light);
+      background: var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .candidate-item:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .candidate-item:active {
+      transform: scale(0.99);
+    }
+
+    .candidate-main {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .candidate-top-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .match-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 8px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .match-badge.prefix {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success-border);
+    }
+
+    .match-badge.contains {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #cbd5e1;
+    }
+
+    .candidate-company {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.35;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      min-width: 0;
+    }
+
+    .candidate-person {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 0;
+      word-break: break-word;
+    }
+
+    .candidate-arrow {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .no-match-box {
+      margin-top: 18px;
+      padding: 26px 20px;
+      border-radius: var(--radius-lg);
+      background: var(--bg-subtle);
+      border: 1.5px dashed var(--border-medium);
+      text-align: center;
+    }
+
+    .no-match-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .no-match-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* ==========================================================================
+       5. HIGH-CONTRAST RESULT CARD (TURN TO STAFF VIEW)
+       ========================================================================== */
+    .result-card {
+      border-radius: 28px;
+      overflow: hidden;
+      background: #ffffff;
+      border: 4px solid #312e81;
+      box-shadow: var(--shadow-lg);
+      animation: popIn 0.18s ease-out;
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .result-top-info {
+      padding: 22px 24px 18px;
+      background: #ffffff;
+      text-align: center;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .result-company-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .result-company-text {
+      font-size: 1.22rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .result-person-text {
+      margin-top: 10px;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    @media (min-width: 640px) {
+      .result-person-text {
+        font-size: 2.35rem;
+      }
+    }
+
+    /* High Contrast Center Code Block */
+    .result-code-banner {
+      padding: 28px 20px 32px;
+      background: linear-gradient(135deg, #312e81 0%, #4338ca 100%);
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .result-code-banner.unassigned {
+      background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
+    }
+
+    .result-card.unassigned {
+      border-color: #c2410c;
+    }
+
+    .result-code-label {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.88);
+      margin-bottom: 10px;
+    }
+
+    .result-code-value {
+      font-size: 3.4rem;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      word-break: break-word;
+      text-shadow: 0 3px 12px rgba(0, 0, 0, 0.22);
+    }
+
+    @media (min-width: 640px) {
+      .result-code-value {
+        font-size: 4.5rem;
+      }
+    }
+
+    .result-actions {
+      padding: 20px 24px 24px;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .turn-hint-pill {
+      width: 100%;
+      max-width: 480px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: #fef3c7;
+      border: 1.5px solid #fcd34d;
+      color: #92400e;
+      font-size: 0.96rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .next-guest-btn {
+      width: 100%;
+      max-width: 480px;
+      min-height: 62px;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 18px;
+      background: #0f172a;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 1.18rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.22);
+      transition: background 0.15s ease, transform 0.12s ease;
+    }
+
+    .next-guest-btn:hover {
+      background: #1e293b;
+    }
+
+    .next-guest-btn:active {
+      transform: scale(0.985);
+    }
+
+    /* ==========================================================================
+       6. FOOTER & ORGANIZER SETTINGS MODAL
+       ========================================================================== */
+    .footer-bar {
+      width: 100%;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 12px 16px 22px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #10b981;
+      flex-shrink: 0;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(15, 23, 42, 0.62);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-panel {
+      background: #ffffff;
+      width: 100%;
+      max-width: 680px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 26px;
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-light);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .modal-sub {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .modal-close-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: none;
+      background: #f1f5f9;
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .modal-section {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 18px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-light);
+    }
+
+    .modal-section-title {
+      font-size: 0.96rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .modal-section-desc {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 46px;
+      padding: 0 18px;
+      border: none;
+      border-radius: 13px;
+      background: var(--accent);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 0 16px;
+      border: 1px solid var(--border-medium);
+      border-radius: 13px;
+      background: #ffffff;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+    }
+
+    .paste-textarea {
+      width: 100%;
+      min-height: 110px;
+      padding: 12px;
+      border-radius: 13px;
+      border: 1.5px solid var(--border-medium);
+      background: #ffffff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.82rem;
+      color: var(--text-primary);
+      resize: vertical;
+      outline: none;
+    }
+
+    .paste-textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .modal-btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .feedback-msg {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .feedback-msg.ok {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+
+    .feedback-msg.err {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header & 4-Language Switcher -->
+  <header class="top-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="5" width="18" height="14" rx="3"></rect>
+            <circle cx="9" cy="11" r="2"></circle>
+            <path d="M6 16c.8-1.5 2.2-2 3-2s2.2.5 3 2"></path>
+            <line x1="15" y1="10" x2="18" y2="10"></line>
+            <line x1="15" y1="14" x2="18" y2="14"></line>
+          </svg>
+        </div>
+        <div>
+          <h1 id="ui-header-title" class="brand-title">貴賓、講師報到查詢</h1>
+          <p id="ui-header-subtitle" class="brand-subtitle">VIP &amp; Speaker Check-in</p>
+        </div>
+      </div>
+
+      <div class="controls-group">
+        <div class="lang-switcher" role="group" aria-label="Language Switcher">
+          <button type="button" class="lang-btn active" data-lang="zh" onclick="setLanguage('zh')">繁中</button>
+          <button type="button" class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+          <button type="button" class="lang-btn" data-lang="ja" onclick="setLanguage('ja')">日本語</button>
+          <button type="button" class="lang-btn" data-lang="ko" onclick="setLanguage('ko')">한국어</button>
+        </div>
+
+        <button type="button" class="gear-btn" onclick="openSettingsModal()" title="後台名單管理" aria-label="後台名單管理">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Kiosk Workspace -->
+  <main class="main-container">
+
+    <!-- 3-Step Guide Card -->
+    <section class="card" aria-label="操作說明">
+      <div class="steps-grid">
+        <div class="step-item">
+          <span class="step-badge">1</span>
+          <div>
+            <div id="ui-step1-title" class="step-title">輸入公司名稱</div>
+            <div id="ui-step1-desc" class="step-desc">支援中文、英文或日文開頭字元查詢</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <span class="step-badge">2</span>
+          <div>
+            <div id="ui-step2-title" class="step-title">點選本人資料</div>
+            <div id="ui-step2-desc" class="step-desc">從下方清單確認您的公司與姓名</div>
+          </div>
+        </div>
+        <div class="step-item step-turn">
+          <span class="step-badge">3</span>
+          <div>
+            <div id="ui-step3-title" class="step-title">將螢幕轉向工作人員</div>
+            <div id="ui-step3-desc" class="step-desc">顯示「對應編號」後請轉給櫃檯取證</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search Card -->
+    <section class="card">
+      <div class="search-header-row">
+        <label for="company-search" id="ui-search-label" class="search-label">公司名稱查詢</label>
+        <button type="button" id="ui-demo-btn" class="quick-demo-btn" onclick="triggerSamplePreview()">
+          ✨ 範例預覽：巨思文化 / BNEXT
+        </button>
+      </div>
+
+      <div class="search-input-wrap">
+        <span class="search-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+
+        <input
+          id="company-search"
+          type="text"
+          class="search-input"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="請輸入公司名稱開頭 (例: 巨思文化 / BNEXT / OpenAI)"
+        />
+
+        <button
+          type="button"
+          id="clear-btn"
+          class="clear-input-btn hidden"
+          onclick="resetSearch()"
+          aria-label="清除輸入"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Candidate Results -->
+      <div id="candidates-section" class="candidates-section hidden">
+        <p id="ui-select-prompt" class="candidates-prompt">請點選您的公司與姓名：</p>
+        <div id="candidates-list" class="candidates-list"></div>
+      </div>
+
+      <!-- No Match Box -->
+      <div id="no-match-box" class="no-match-box hidden">
+        <p id="ui-no-match-title" class="no-match-title">找不到相符的資料</p>
+        <p id="ui-no-match-desc" class="no-match-desc">請嘗試輸入公司簡稱（中、英、日文皆可），或直接洽詢現場工作人員。</p>
+      </div>
+    </section>
+
+    <!-- High-Contrast Result Card (Turn Toward Staff View) -->
+    <section id="result-card" class="result-card hidden" aria-live="polite">
+      <div class="result-top-info">
+        <div id="ui-result-company-label" class="result-company-label">公司 / 職稱 · 貴賓姓名</div>
+        <div id="result-company-text" class="result-company-text">-</div>
+        <div id="result-person-text" class="result-person-text">-</div>
+      </div>
+
+      <div id="result-code-banner" class="result-code-banner">
+        <div id="ui-result-code-label" class="result-code-label">對應編號</div>
+        <div id="result-code-value" class="result-code-value">-</div>
+      </div>
+
+      <div class="result-actions">
+        <div class="turn-hint-pill">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span id="ui-turn-screen-hint">請將螢幕轉向工作人員核對領證</span>
+        </div>
+
+        <button type="button" class="next-guest-btn" onclick="resetSearch()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+          <span id="ui-next-guest-btn">下一位查詢（一鍵清除）</span>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer Status -->
+  <footer class="footer-bar">
+    <div class="status-indicator">
+      <span class="status-dot"></span>
+      <span id="ui-footer-status">已載入 440 筆正式名單（支援離線查詢）</span>
+    </div>
+    <span id="ui-footer-mode">本機內建名單 · 100% 離線可用</span>
+  </footer>
+
+  <!-- Organizer Admin Modal -->
+  <div id="settings-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-title" class="modal-title">後台名單管理（本機離線快取）</h2>
+          <p id="modal-sub" class="modal-sub">支援匯入 CSV / TXT 檔案或貼上 3 欄試算表資料（公司名稱｜名字｜對應編號）</p>
+        </div>
+        <button type="button" class="modal-close-btn" onclick="closeSettingsModal()" aria-label="關閉">✕</button>
+      </div>
+
+      <!-- Import Local File -->
+      <div class="modal-section">
+        <div id="ui-modal-file-title" class="modal-section-title">1. 選擇本機 CSV / TXT 檔案匯入</div>
+        <p id="ui-modal-file-desc" class="modal-section-desc">
+          欄位順序：第 1 欄「公司名稱」、第 2 欄「名字」、第 3 欄「對應編號」。匯入後將儲存於此裝置瀏覽器中。
+        </p>
+        <input type="file" id="csv-file-input" accept=".csv,.txt,.tsv,text/csv,text/plain" class="hidden" onchange="handleFileUpload(event)" />
+        <button type="button" class="btn-primary" onclick="document.getElementById('csv-file-input').click()">
+          <span id="ui-modal-file-btn">📂 選擇本機 CSV / TXT 檔案匯入</span>
+        </button>
+      </div>
+
+      <!-- Manual Paste -->
+      <div class="modal-section">
+        <div id="ui-modal-paste-title" class="modal-section-title">2. 手動貼上試算表文字覆蓋更新</div>
+        <p id="ui-modal-paste-desc" class="modal-section-desc">
+          直接從 Google Sheet 或 Excel 全選複製（Tab 分隔或逗號分隔）貼入下方文字框並套用：
+        </p>
+        <textarea id="paste-input" class="paste-textarea" placeholder="範例：&#10;巨思文化 / BNEXT&#9;王小明&#9;A-01&#10;比利時台北辦事處 副處長&#9;Mr. Cédric Schampers&#9;B01 駐台"></textarea>
+        <div class="modal-btn-row">
+          <button type="button" class="btn-primary" onclick="applyPastedData()">
+            <span id="ui-modal-apply-btn">套用貼上的資料</span>
+          </button>
+          <button type="button" class="btn-secondary" onclick="resetToBuiltInData()">
+            <span id="ui-modal-reset-btn">重設回內建 440 筆正式名單</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="modal-feedback" class="feedback-msg hidden"></div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ==========================================================================
+     * 1. BUILT-IN 440 OFFICIAL RECORDS (COMPANY / TITLE, NAME, BADGE CODE)
+     * ==========================================================================
+     */
+    const DEFAULT_DATA = [
+      { company: "比利時台北辦事處 副處長", name: "Mr. Cédric Schampers", code: "B01 駐台" },
+      { company: "比利時台北辦事處 外貿投資局 組長", name: "鄒宏平", code: "B01 駐台" },
+      { company: "美國亞利桑那州駐台貿易投資辦事處 處長", name: "徐竹先", code: "B01 駐台" },
+      { company: "美國亞利桑那州駐台貿易投資辦事處 副處長", name: "李欣怡", code: "B01 駐台" },
+      { company: "美國在台協會 AIT American Space Specialist", name: "Sharon Wu", code: "B01 駐台" },
+      { company: "美國在台協會 AIT Economic Officer", name: "Kevin Rosier", code: "B01 駐台" },
+      { company: "美國在台協會 AIT Economic Specialist", name: "Ta-Ching Shih", code: "B01 駐台" },
+      { company: "美國在台協會 AIT 處長", name: "谷立言", code: "B01 駐台" },
+      { company: "大韓貿易投資振興公社 駐台北韓國貿易館（KOTRA Taipei） 館長", name: "李領基", code: "B01 駐台" },
+      { company: "大韓貿易投資振興公社 駐台北韓國貿易館（KOTRA Taipei） 專員", name: "楊易儒", code: "B01 駐台" },
+      { company: "大韓貿易投資振興公社 駐台北韓國貿易館（KOTRA Taipei） 副館長", name: "蔡善永", code: "B01 駐台" },
+      { company: "台灣區塊鏈愛好者協會 秘書長", name: "陳鼎元", code: "D03" },
+      { company: "台灣網路資訊中心 營運長", name: "林秋瑾", code: "A03" },
+      { company: "桃園市政府青年事務局 局長", name: "侯佳齡", code: "A02" },
+      { company: "泰國數位經濟促進局DEPA 高級執行副總裁", name: "Dr. Preesan Rakwatin", code: "B02-泰/日" },
+      { company: "泰國數位經濟促進局DEPA Senior Officer", name: "Namphet Nijnananant", code: "B02-泰/日" },
+      { company: "泰國數位經濟促進局DEPA Senior Officer", name: "Sripatchara Paresakulthip", code: "B02-泰/日" },
+      { company: "臺北市政府 副市長", name: "林奕華", code: "A02" },
+      { company: "臺北市政府產業發展局 副局長", name: "吳欣珮", code: "A02" },
+      { company: "臺北市政府青年局 局長", name: "周羿希", code: "A02" },
+      { company: "臺灣證券交易所 總經理", name: "李愛玲", code: "A03" },
+      { company: "聯合報系 長期投資管理組 資深投資經理", name: "劉承啟", code: "C02 CVC" },
+      { company: "國發會 主任委員", name: "葉俊顯", code: "A01" },
+      { company: "國發會 副主任委員", name: "詹方冠", code: "A01" },
+      { company: "國立陽明交通大學產業加速中心 IAPS,NYCU 執行長", name: "林伯恒", code: "B05" },
+      { company: "工業技術研究院產業服務中心 執行長", name: "陳立偉", code: "A03" },
+      { company: "高雄市政府青年局 局長", name: "陳立偉", code: "A02" },
+      { company: "酷日國際 執行長", name: "林玲妃", code: "D03" },
+      { company: "和鼎創投 副董事長", name: "劉奕成", code: "C02 CVC" },
+      { company: "基隆市政府產業發展處 處長", name: "蔡馥嚀", code: "A02" },
+      { company: "教育部青年發展署 署長", name: "陳雪玉", code: "A01" },
+      { company: "經濟部 政務次長", name: "何晉滄", code: "A01" },
+      { company: "經濟部中小及新創企業署 署長", name: "李冠志", code: "A01" },
+      { company: "經濟部智慧財產局 專利審查一組組長", name: "謝曉光", code: "A01" },
+      { company: "經濟部智慧財產局 局長", name: "廖承威", code: "A01" },
+      { company: "經濟部產業發展署 主任秘書", name: "李純孝", code: "A01" },
+      { company: "經濟部產業發展署 署長", name: "邱求慧", code: "A01" },
+      { company: "勤業眾信 新創事業服務團隊 負責人", name: "李紹平", code: "D01 四大" },
+      { company: "勤業眾信聯合會計師事務所 經理", name: "謝佩紋", code: "D01 四大" },
+      { company: "勤業眾信聯合會計師事務所 資深會計師", name: "陳薔旬", code: "D01 四大" },
+      { company: "新光三越創業投資 董事長", name: "王楠淵", code: "C02 CVC" },
+      { company: "新北市政府青年局 局長", name: "邱兆梅", code: "A02" },
+      { company: "新竹縣政府教育局青年事務科 科長", name: "嚴翊琦", code: "A02" },
+      { company: "新竹市政府產業發展處 副處長", name: "謝濬鴻", code: "A02" },
+      { company: "新竹市政府產業發展處 處長", name: "嚴翊琦", code: "A02" },
+      { company: "新竹市政府產業發展處工商科 科長", name: "陳圓蓉", code: "A02" },
+      { company: "新竹市政府產業發展處工商科 科員", name: "黃仕妤", code: "A02" },
+      { company: "中華民國對外貿易發展協會 組長", name: "陸慧悌", code: "D03" },
+      { company: "中華電信 企業客戶分公司 總經理", name: "張本元", code: "D02 中華+遠傳" },
+      { company: "中華電信 投資事業處 協理", name: "陳威廷", code: "D02 中華+遠傳" },
+      { company: "中華電信 投資事業處 科長", name: "林昀生", code: "D02 中華+遠傳" },
+      { company: "中華電信 總經理", name: "林榮賜", code: "D02 中華+遠傳" },
+      { company: "中華電信 董事長", name: "簡志誠", code: "D02 中華+遠傳" },
+      { company: "中華電信 行政執行副總經理", name: "陳元凱", code: "D02 中華+遠傳" },
+      { company: "株式会社みなと銀行 グループリーダー", name: "新井 群", code: "B02-泰/日" },
+      { company: "株式会社神戸新聞社 経営企画局地域連携次長", name: "大前 哲", code: "B02-泰/日" },
+      { company: "株式会社神戸新聞社 経営企画局地域連携部長", name: "篠原 佳也", code: "B02-泰/日" },
+      { company: "證券櫃檯買賣中心 總經理", name: "陳麗卿", code: "A03" },
+      { company: "證券櫃檯買賣中心 董事長", name: "簡立忠", code: "A03" },
+      { company: "證券櫃檯買賣中心 主任秘書", name: "林婉容", code: "A03" },
+      { company: "數位發展部 機要", name: "林明瑜", code: "A01" },
+      { company: "數位發展部 部長", name: "林宜敬", code: "A01" },
+      { company: "數位發展部數位產業署 副署長", name: "陳怡君", code: "A01" },
+      { company: "數位發展部數位產業署 署長", name: "林俊秀", code: "A01" },
+      { company: "時代基金會 副執行長", name: "簡彣蓁", code: "D03" },
+      { company: "仁寶電腦 企業發展中心副總經理", name: "鄭寶瑞", code: "C02 CVC" },
+      { company: "日本台灣交流協會台北事務所 副代表", name: "川合 現", code: "B01 駐台" },
+      { company: "日本台灣交流協會台北事務所 經濟部 主任", name: "藤本 海香子", code: "B01 駐台" },
+      { company: "資誠聯合會計師事務所 創新創業服務 協同主持會計師", name: "吳仁杰", code: "D01 四大" },
+      { company: "斯伯克國際創業投資有限公司 Senior Investment Manager", name: "Regina Lo", code: "D03" },
+      { company: "安侯建業聯合會計師事務所 創新與新創服務團隊協同主持會計師", name: "簡思娟", code: "D01 四大" },
+      { company: "安永聯合會計師事務所 審計服務部營運長", name: "黃建澤", code: "D01 四大" },
+      { company: "緯創資通 投資副總經理", name: "吳思本", code: "C02 CVC" },
+      { company: "緯創資通 資深投資經理", name: "洪郁雯", code: "C02 CVC" },
+      { company: "遠傳電信 總經理", name: "井琪", code: "D02 中華+遠傳" },
+      { company: "遠傳電信 資訊長暨執行副總經理", name: "胡德民", code: "D04 講師" },
+      { company: "ASUS Vice Chair of Corporate Incubator", name: "Wen (Zuo-Wen) Wang", code: "B04" },
+      { company: "AppWorks Investment Vice President", name: "Michelle Lin", code: "B04" },
+      { company: "BIG Impact", name: "David Bae", code: "B04" },
+      { company: "BSIA Director General, Global Investment Department", name: "Brian Park", code: "B03 韓" },
+      { company: "BSIA 韓國 Manager, Global Investment Department", name: "LEE Yeji", code: "B03 韓" },
+      { company: "BSIA 韓國 Managing Director, Global Investment Department", name: "PARK Yong-soo", code: "B03 韓" },
+      { company: "Boba Tech / Nova Studio Founder", name: "Caleb Chu", code: "B04" },
+      { company: "Busan Metropolitan City韓國 Head of Startup Infrastructure Team", name: "BAE Sungwoo", code: "B03 韓" },
+      { company: "Busan Metropolitan City韓國 Administrative Officer", name: "PARK Ji-won", code: "B03 韓" },
+      { company: "Busan Metropolitan City Head of Venture Investment Team", name: "SON Younghee", code: "B03 韓" },
+      { company: "CIC FUKUOKA General Manager", name: "Masanori Torigoe", code: "B02-泰/日" },
+      { company: "CIC Tokyo Sales & Relationship Manager", name: "Yusuke Saiki", code: "B02-泰/日" },
+      { company: "City of Sendai Entrepreneur Support Subsection Startup Support Section Economic Affairs Bureau Senior Officer", name: "Yuuki Numazawa", code: "B02-泰/日" },
+      { company: "Counterpart Ventures Principal", name: "Mikey Kailis", code: "B04" },
+      { company: "Czech-Taiwanese Business Chamber Head of Taiwan Office", name: "余采軒", code: "B04" },
+      { company: "CzechInvest Director for Taiwanese Operations", name: "Matouš Kostlivý", code: "事前先拿走" },
+      { company: "CzechInvest Expansion Expert for Startups", name: "Zuzana Michalíková", code: "事前先拿走" },
+      { company: "CzechInvest Assistant to the Director of CzechInvest Office in Taiwan", name: "陳葶榕", code: "事前先拿走" },
+      { company: "DOWN President, Founder, Owner", name: "Colin Hodge", code: "B04" },
+      { company: "Enspyre Inc. / Dragon's Chamber Founder and CEO", name: "Elias Ek", code: "B04" },
+      { company: "エコックス株式会社 （ECOX Co., Ltd.） 董事長", name: "荒牧 英樹", code: "B02-泰/日" },
+      { company: "Fukuoka City Government Director, Global Startup Support Section", name: "Katsuya KANAMARU", code: "B02-泰/日" },
+      { company: "Fukuoka City Government Global Coordinator, Global Startup Support Section", name: "Motomi SHACHTER", code: "B02-泰/日" },
+      { company: "GFR Fund General Partner", name: "Teppei Tsutsui", code: "B02-泰/日" },
+      { company: "GICON Team Leader", name: "Yong Kim", code: "B03 韓" },
+      { company: "Gogolook 財務長", name: "黃鈺文", code: "D03" },
+      { company: "Headline VC Partner & co-founder", name: "Akio Tanaka田中章雄", code: "B02-泰/日" },
+      { company: "Infinio Capital 管理合夥人", name: "翁榮志", code: "D03" },
+      { company: "KPMG", name: "Yvette", code: "D01 四大" },
+      { company: "Kobe Shimbun Anchor Kobe", name: "Mr. Yoshiya Shinohara", code: "B04" },
+      { company: "Kobe Shimbun Anchor Kobe", name: "Mr. Akira Omae", code: "B04" },
+      { company: "Mindify AI Inc. 創辦人", name: "Mark Chen", code: "D03" },
+      { company: "Minato Bank", name: "Mr. Gun Arai", code: "B04" },
+      { company: "Mucker Capital 創辦人", name: "William Hsu", code: "D04 講師" },
+      { company: "Musa Trademark / Canadian Chamber of Commerce Founder / Director", name: "Jessie Chou", code: "B04" },
+      { company: "Mystartr Sdn Bhd 創辦人", name: "吳文彬", code: "B04" },
+      { company: "NESIC 執行役員", name: "TAKAHASHI HIROFUMI 高橋 博文", code: "B02-泰/日" },
+      { company: "National Taipei University Assistant Professor", name: "Dr. Yina Wu", code: "B05" },
+      { company: "Nirik Inc. 區域經理", name: "Nora Tsai", code: "B05" },
+      { company: "OpenAI 亞太區新創負責人", name: "Thomas Jeng", code: "D04 講師" },
+      { company: "Pinehurst Venture Studio Managing Director", name: "Ta-Wei Wang", code: "B05" },
+      { company: "Premier Capital Management Vice President", name: "Cindy Lin", code: "B05" },
+      { company: "Qualcomm Director, Government Affairs", name: "Julia Hung", code: "事前先拿走" },
+      { company: "Qualcomm Director, Business Development & Lead of Ecosystem Development Programs in APAC", name: "Yvie Tai", code: "事前先拿走" },
+      { company: "Qualcomm VP, Developer Relations", name: "Uttam Tripathi", code: "事前先拿走" },
+      { company: "Qualcomm Vice President of Engineering& Lead of Global Ecosystem Development Program", name: "Sudeepto Roy", code: "事前先拿走" },
+      { company: "Smart Capital Investment and Community", name: "Igor Žilák", code: "B05" },
+      { company: "Startup Grind Director, Singapore", name: "Curtis Bergh", code: "B05" },
+      { company: "Storm Ventures 合夥人", name: "Minjoo Kim", code: "D04 講師" },
+      { company: "Taiwan Global Angels 創辦人暨執行長", name: "詹益鑑", code: "D03" },
+      { company: "Tesoro Venture Capital 創辦人暨管理合夥人", name: "Andy Lombard", code: "D04 講師" },
+      { company: "Tohoku University Knowledge Cast Co., Ltd. Executive Officer", name: "Taiki Sato", code: "B02-泰/日" },
+      { company: "Yushan Ventures Director", name: "Kazumi Otani", code: "B02-泰/日" },
+      { company: "Yushan Ventures Managing Director", name: "Volker Heistermann", code: "B02-泰/日" },
+      { company: "夢田影像 執行長", name: "蘇麗媚", code: "C03 AAMA" },
+      { company: "富恩投資股份有限公司 董事長", name: "鄒開蓮", code: "C03 AAMA" },
+      { company: "創業者共創平台基金會 創辦人", name: "顏漏有", code: "C03 AAMA" },
+      { company: "創業者共創平台基金會 董事長", name: "林志垚", code: "C03 AAMA" },
+      { company: "奕力科技 董事長", name: "梁公偉", code: "C03 AAMA" },
+      { company: "AAMA 董事", name: "林妍希", code: "C03 AAMA" },
+      { company: "（無填寫公司）", name: "Jerry 張", code: "C03 AAMA" },
+      { company: "電通智能中心 創意合夥人", name: "陳靖偉", code: "C01 樂團" },
+      { company: "電通集團 策略創新長", name: "邵懿文", code: "C01 樂團" },
+      { company: "經緯廣告科技 執行長、聖洋科技 技術長", name: "梁凱智", code: "C01 樂團" },
+      { company: "誠品生活 董事暨執行顧問", name: "游士逸", code: "C01 樂團" },
+      { company: "LINE台灣 企業解決方案事業群總經理", name: "王俞蓉", code: "C01 樂團" },
+      { company: "WeMo威摩科技 CEO", name: "劉于遜", code: "C01 樂團" },
+      { company: "Day 1 Cofounder", name: "Ta-Wei Wang", code: "B06 TTW" },
+      { company: "SparkLabs Taiwan Managing Partner", name: "Edgar", code: "B06 TTW" },
+      { company: "Garage+ Vice President, Epoch Foundation", name: "Wendy Chien", code: "B06 TTW" },
+      { company: "CCIA Managing Director, Venture and Innovation Group, CDIB Capital", name: "Ryan Kuo", code: "B06 TTW" },
+      { company: "Anchor Global Founder & CEO", name: "Elisa Chiu", code: "B06 TTW" },
+      { company: "SIC Co-Founder & Managing Partner", name: "HUANG, CHUN-CHIEH", code: "B06 TTW" },
+      { company: "Addin Ventures Managing Partner", name: "Brandon Chiang", code: "B06 TTW" },
+      { company: "AppWorks Accelerator Program Manager", name: "HsiChun", code: "B06 TTW" },
+      { company: "Startup Island TAIWAN Founder & Managing Partner", name: "Amanda Liu", code: "B06 TTW" },
+      { company: "Akio Tanaka 田中章雄", name: "Headline Asia Founding Partner", code: "請洽櫃檯確認" },
+      { company: "Akio Tanaka 田中章雄", name: "Headline Asia Founding Partner", code: "請洽櫃檯確認" },
+      { company: "John Fan", name: "PicCollage CEO / Co-founder", code: "B06 TTW" },
+      { company: "八法行銷", name: "曾智永", code: "V1 (ㄅ～ㄌ)" },
+      { company: "品富智圖有限公司", name: "黃紹麟", code: "V1 (ㄅ～ㄌ)" },
+      { company: "大亞創業投資股份有限公司", name: "張志弘", code: "V1 (ㄅ～ㄌ)" },
+      { company: "大師課業", name: "Frank Liu", code: "V1 (ㄅ～ㄌ)" },
+      { company: "東海大學工學院", name: "顏宏偉", code: "V1 (ㄅ～ㄌ)" },
+      { company: "讀墨電子書", name: "龐文真", code: "V1 (ㄅ～ㄌ)" },
+      { company: "電通娛樂", name: "何華軒", code: "V1 (ㄅ～ㄌ)" },
+      { company: "台大創創中心", name: "江旻壕", code: "C" },
+      { company: "台大創創學程 農藝系", name: "曾正忠", code: "V1 (ㄅ～ㄌ)" },
+      { company: "台灣先進智慧股份有限公司", name: "王彥堯", code: "V1 (ㄅ～ㄌ)" },
+      { company: "台灣普拉斯數位科技", name: "顏淑花", code: "V1 (ㄅ～ㄌ)" },
+      { company: "台灣西門子股份有限公司", name: "Sophina", code: "V1 (ㄅ～ㄌ)" },
+      { company: "台灣連線LINE Taiwan", name: "蔡昆錡", code: "V1 (ㄅ～ㄌ)" },
+      { company: "台經院", name: "周佳寧", code: "A01" },
+      { company: "天來人才管理顧問股份有限公司", name: "柯全恒", code: "V1 (ㄅ～ㄌ)" },
+      { company: "理律法律事務所", name: "王懿融", code: "V1 (ㄅ～ㄌ)" },
+      { company: "領航公關", name: "蔡依如", code: "V1 (ㄅ～ㄌ)" },
+      { company: "國發會", name: "李佳貞", code: "A01" },
+      { company: "工研院資通所", name: "王基振", code: "V2 (ㄍ～ㄒ)" },
+      { company: "廣達電腦股份有限公司", name: "張嘉淵", code: "V2 (ㄍ～ㄒ)" },
+      { company: "故事潮", name: "黃心仁", code: "V2 (ㄍ～ㄒ)" },
+      { company: "格上租車", name: "解睿凱", code: "V2 (ㄍ～ㄒ)" },
+      { company: "紅樓資本", name: "楊曜陽", code: "C" },
+      { company: "華泰名品城", name: "劉亭君", code: "V2 (ㄍ～ㄒ)" },
+      { company: "加密城市", name: "林瑋哲", code: "V2 (ㄍ～ㄒ)" },
+      { company: "全支付", name: "游金榮", code: "V2 (ㄍ～ㄒ)" },
+      { company: "全支付電子支付", name: "陳振文", code: "V2 (ㄍ～ㄒ)" },
+      { company: "循環台灣基金會", name: "陳惠琳", code: "V2 (ㄍ～ㄒ)" },
+      { company: "新光三越百貨股份有限公司", name: "莊宛妮", code: "V2 (ㄍ～ㄒ)" },
+      { company: "迅合數位有限公司", name: "張貝源", code: "V2 (ㄍ～ㄒ)" },
+      { company: "中信創投", name: "陳冠甫 Kyle Chen", code: "V3 (ㄓ～ㄩ)" },
+      { company: "中國文化大學", name: "陳庭儀", code: "V3 (ㄓ～ㄩ)" },
+      { company: "中華軟體公會", name: "蔡金育", code: "V3 (ㄓ～ㄩ)" },
+      { company: "中華軟體公會", name: "陳玉琴", code: "V3 (ㄓ～ㄩ)" },
+      { company: "創投公會暨私募公會", name: "謝睿哲", code: "V3 (ㄓ～ㄩ)" },
+      { company: "數位經濟暨產業發展協會", name: "黃玉華", code: "V3 (ㄓ～ㄩ)" },
+      { company: "昇頻股份有限公司", name: "陳金勇", code: "V3 (ㄓ～ㄩ)" },
+      { company: "生洋網路股份有限公司", name: "林群森", code: "V3 (ㄓ～ㄩ)" },
+      { company: "安富資本", name: "Annie Yeh", code: "C" },
+      { company: "亞馬遜全球開店", name: "Emily Liu", code: "V3 (ㄓ～ㄩ)" },
+      { company: "亞馬遜全球開店", name: "Kim Chen", code: "V3 (ㄓ～ㄩ)" },
+      { company: "亞馬遜全球開店", name: "Paloma Hsieh", code: "V3 (ㄓ～ㄩ)" },
+      { company: "亞馬遜全球開店", name: "Sylvia Chang", code: "V3 (ㄓ～ㄩ)" },
+      { company: "遊達有限公司", name: "吳顯二", code: "V3 (ㄓ～ㄩ)" },
+      { company: "元智大學", name: "柳育德", code: "V3 (ㄓ～ㄩ)" },
+      { company: "AAMA 創業者共創平台基金會", name: "顏漏有", code: "C" },
+      { company: "AVA Angels", name: "莊孟儒", code: "V4 (A～M)" },
+      { company: "Alder Strategy Group", name: "江如韻", code: "V4 (A～M)" },
+      { company: "Anchor Global", name: "Elisa Chiu", code: "C" },
+      { company: "AppWorks", name: "Alyssa Chen", code: "V4 (A～M)" },
+      { company: "Appier", name: "李致杰", code: "V4 (A～M)" },
+      { company: "Brinno Inc.", name: "周裕欽", code: "V4 (A～M)" },
+      { company: "CCIA", name: "Janet Chen", code: "A03" },
+      { company: "CloudMile 萬里雲集團", name: "劉永信", code: "V4 (A～M)" },
+      { company: "Epoch", name: "Shen Lim", code: "D03" },
+      { company: "H2U永悅健康", name: "許志鈺", code: "V4 (A～M)" },
+      { company: "Headline Aisa", name: "Jennifer Lin 林其臻", code: "C" },
+      { company: "Incubate Fund", name: "Hiro Okahashi", code: "V4 (A～M)" },
+      { company: "Irisgo", name: "朱宜振", code: "V4 (A～M)" },
+      { company: "KKBOX", name: "Michael Yeh葉展昀", code: "V4 (A～M)" },
+      { company: "Mighty Net", name: "Chi Ko", code: "V4 (A～M)" },
+      { company: "Mighty Net", name: "Kuma Hsiung", code: "V4 (A～M)" },
+      { company: "Mighty Net", name: "Ray Tai", code: "V4 (A～M)" },
+      { company: "Pegatron Venture Capital", name: "Ray Zhang", code: "V5 (N～Z)" },
+      { company: "SIC", name: "林昶聿", code: "V5 (N～Z)" },
+      { company: "SIC永續影響力投資高雄分會", name: "許哲豪", code: "V5 (N～Z)" },
+      { company: "SIC高雄", name: "蔡承祐", code: "V5 (N～Z)" },
+      { company: "SIC高雄", name: "陳亭君", code: "V5 (N～Z)" },
+      { company: "Shopee Taiwan", name: "Jenni", code: "V5 (N～Z)" },
+      { company: "Smart Capital", name: "Chester Tsai", code: "V5 (N～Z)" },
+      { company: "SparkLabs Taiwan", name: "Edgar Chiu", code: "V5 (N～Z)" },
+      { company: "Taboola", name: "Lucy Chao", code: "V5 (N～Z)" },
+      { company: "Tagtoo", name: "楊長峯", code: "V5 (N～Z)" },
+      { company: "urCFO", name: "Jason Lu", code: "V5 (N～Z)" },
+      { company: "xMEMS", name: "Chester Hwang", code: "V5 (N～Z)" },
+      { company: "（無填寫公司）", name: "Thomas Chuang", code: "V5 (N～Z)" },
+      { company: "StarFab", name: "劉晏蓉", code: "C" },
+      { company: "（無填寫公司）", name: "戴章皇", code: "V5 (N～Z)" },
+      { company: "（無填寫公司）", name: "沈謙", code: "V5 (N～Z)" },
+      { company: "Google 台灣 Google Taiwan 前董事總經理 Former Managing Director", name: "簡立峰 Lee-Feng Chien", code: "14:00" },
+      { company: "OpenAI 亞太區新創負責人 APAC Head of Startups", name: "Thomas Jeng", code: "14:00" },
+      { company: "中華電信 Chunghwa Telecom 行政長暨執行副總經理 CAO & SEVP", name: "陳元凱 Yuan-Kai Chen", code: "14:00" },
+      { company: "群聯電子 Phison Electronics 創辦人暨執行長 Founder and Chief Executive Officer", name: "潘健成 K.S. Pua", code: "14:00" },
+      { company: "遠傳電信 Far EasTone Telecommunications 資訊長暨執行副總經理 Executive Vice President & CIO", name: "胡德民 Peter Hu（識別證放開幕式）", code: "請洽櫃檯確認" },
+      { company: "Founder & CEO, DATAYOO", name: "Shaw Wu", code: "16:00" },
+      { company: "Founder & CEO, Smart Tag", name: "Kim Chang", code: "16:00" },
+      { company: "Founder & Managing Partner, Tesoro Venture Capital", name: "Andy Lombard", code: "16:00" },
+      { company: "Partner, SIC Singapore", name: "TY Shao", code: "16:00" },
+      { company: "Co-Founder & Managing Partner, Sustainable Impact Capital", name: "Amos Huang", code: "16:00" },
+      { company: "Deputy Convener, Semiconductor Group, Sustainable Impact Capital", name: "Claire Chang", code: "16:00" },
+      { company: "Fund Managing Partner, Sustainable Impact Capital", name: "Joseph Hsieh", code: "16:00" },
+      { company: "Industry Partner, Healthcare, Sustainable Impact Capital", name: "Rufen Chen", code: "16:00" },
+      { company: "Partner, Silicon Valley, Sustainable Impact Capital", name: "Amy Chen", code: "16:00" },
+      { company: "Partner, Silicon Valley, Sustainable Impact Capital", name: "Dennis Lee", code: "16:00" },
+      { company: "遠傳電信", name: "井琪", code: "請洽櫃檯確認" },
+      { company: "遠傳電信", name: "胡德民", code: "請洽櫃檯確認" },
+      { company: "遠傳電信", name: "張嘉容", code: "13:00" },
+      { company: "遠傳電信", name: "陳國正", code: "13:00" },
+      { company: "遠傳電信", name: "張文津", code: "13:00" },
+      { company: "遠傳電信", name: "梁仲銘", code: "13:00" },
+      { company: "數位發展部", name: "林宜敬", code: "13:00" },
+      { company: "德煌生醫科技股份有限公司", name: "廖健仲", code: "13:00" },
+      { company: "寵訊生醫股份有限公司", name: "顧元杰", code: "13:00" },
+      { company: "展綠科技股份有限公司", name: "吴仁作", code: "13:00" },
+      { company: "台灣微網科技股份有限公司", name: "王懷賢", code: "13:00" },
+      { company: "以力股份有限公司公司", name: "徐郁涵", code: "13:00" },
+      { company: "深智科技股份有限公司", name: "吴承翰", code: "13:00" },
+      { company: "愛酷智能科技股份有限公司", name: "Allen Chen", code: "13:00" },
+      { company: "桓竑智聯股份有限公司", name: "林致廷", code: "13:00" },
+      { company: "永訊智庫股份有限公司", name: "李振北", code: "13:00" },
+      { company: "Startup Island TAIWAN - Silicon Valley Hub Director, Head of Silicon Valley Hub", name: "Uly", code: "Uly" },
+      { company: "Startup Island Taiwan 矽谷新創基地 Head of Silicon Valley Hub Startup Island Taiwan 總監 Director", name: "蘇祐立 Uly Su", code: "Uly" },
+      { company: "CSO CTC-SYSTEX Co., Ltd.", name: "Eric Chen", code: "14:00" },
+      { company: "Cool Japan Fund Managing Director", name: "Kenichi Sawaya", code: "14:00" },
+      { company: "DG INCUBATION Head of Investment Dept. I", name: "Kosuke Yusa", code: "14:00" },
+      { company: "LINE Taiwan Head of Corporate Strategy", name: "唐欣 Cecilia Tang", code: "19-1" },
+      { company: "Moonlake AI Member of Technical Staff", name: "徐子旻 Harry Hsu", code: "19-1" },
+      { company: "Unilite Inc. CFO", name: "許彥博 Phenix", code: "19-1" },
+      { company: "合庫金控創投 國際投資主管", name: "劉葳之 Nicole Liu", code: "19-1" },
+      { company: "和泰汽車 策略研究及投資室 課長", name: "黃河源", code: "19-1" },
+      { company: "和泰汽車 策略研究及投資室 室長", name: "黃資婉 Joy Huang", code: "19-1" },
+      { company: "和鼎創投 副總經理", name: "葉柏廷 Travis Yeh", code: "19-1" },
+      { company: "太陽生鮮農產股份有限公司 資訊長", name: "張瀚仁 Moses Chang", code: "19-1" },
+      { company: "太陽生鮮農產股份有限公司 董事長", name: "蔡易成 Easy Tsai", code: "19-1" },
+      { company: "宏福資本管理顧問 合夥人暨總經理", name: "杜立民 Edward Tu", code: "19-1" },
+      { company: "新光三越創投 經理", name: "許效軒", code: "19-2" },
+      { company: "新光三越創投 經理", name: "楊凱蓉", code: "19-2" },
+      { company: "智慧方案股份有限公司 執行長", name: "陳慶蔚 Albert Chen", code: "19-2" },
+      { company: "智慧方案股份有限公司 營運長", name: "陳旻筠 Claudia Chen", code: "19-2" },
+      { company: "王道銀行 策略發展處投資部", name: "田富彰 Edward Tyane", code: "19-2" },
+      { company: "王道銀行 策略發展處投資部 資深協理", name: "徐佩琳 Rosaline Hsu", code: "19-2" },
+      { company: "王道銀行 策略發展處投資部", name: "蕭至佑 Joy Siew", code: "19-2" },
+      { company: "王道銀行 策略發展處投資部", name: "張維軒 Sean Chang", code: "19-2" },
+      { company: "王道銀行 策略發展處投資部", name: "陳信价 Steven Chen", code: "19-2" },
+      { company: "王道銀行 策略發展處投資部", name: "顏敏光 Erica Yen", code: "19-2" },
+      { company: "科雁股份有限公司 VP", name: "曾韻伃 Jasmine", code: "19-3" },
+      { company: "科雁股份有限公司 CEO", name: "韋經智 Michael", code: "19-3" },
+      { company: "精誠資訊 商業開發經理", name: "Wayne Chen", code: "19-3" },
+      { company: "緯創資通 資深投資經理", name: "洪郁雯 Avery Hung", code: "19-3" },
+      { company: "緯創資通 投資副總經理", name: "吳思本 Eric Wu", code: "19-3" },
+      { company: "聆機科技 CEO", name: "晏自強 Nathan Yen", code: "19-3" },
+      { company: "聚動分子股份有限公司 商務總監", name: "曾繁盛 Franson Tseng", code: "19-3" },
+      { company: "聚動分子股份有限公司 COO", name: "蔡傑羽 Chieh-Yu Tsai", code: "19-3" },
+      { company: "聯合報系 長期投資管理組 資深投資經理", name: "劉承啟 Charles Liu", code: "19-3" },
+      { company: "阿里巴巴創業者基金 市場溝通經理", name: "杜怡蓉 Abby Tu", code: "19-3" },
+      { company: "Qualcomm VP of Engineering and Lead of Global Ecosystem Develop Program", name: "Sudeepto Roy", code: "請洽櫃檯確認" },
+      { company: "Qualcomm Director, Business Development & Lead of Ecosystem Development Programs in APAC", name: "Yvie Tai", code: "請洽櫃檯確認" },
+      { company: "DG Incubation Head of Investment & GP", name: "遊佐康佑 Kosuke Yusa", code: "Neo1" },
+      { company: "勤業眾信聯合會計師事務所 新創事業服務團隊負責人", name: "李紹平", code: "Neo1" },
+      { company: "安永聯合會計師事務所 協理", name: "徐廷仰", code: "Neo1" },
+      { company: "Gogolook 財務長", name: "黃鈺文 Ian Huang", code: "Neo1" },
+      { company: "Infinio Capital 管理合夥人", name: "翁榮志", code: "Neo1" },
+      { company: "KPMG 顧問部副總", name: "張智淵 Leo Chang", code: "Neo1" },
+      { company: "資誠聯合會計師事務所 創新創業服務 主持會計師", name: "顏裕芳", code: "Neo1" },
+      { company: "Storm Venture Partner", name: "Minjoo Kim", code: "Neo2" },
+      { company: "Taiwan Global Angels 創辦人暨執行長", name: "詹益鑑 IC", code: "Neo2" },
+      { company: "iCHEF", name: "程開佑 Ken", code: "Neo2" },
+      { company: "不印公司名 Angel investor", name: "Wei-Chiu Chuang（Jojo）", code: "Neo2" },
+      { company: "中華開發資本 創新投資事業群 投資副總經理", name: "魏如伶", code: "Neo2" },
+      { company: "中華電信股份有限公司 投資事業處 協理", name: "陳威廷", code: "Neo2" },
+      { company: "台灣智慧雲端服務股份有限公司 執行長", name: "周秉輝", code: "Neo2" },
+      { company: "台灣經濟研究院 研究六所 副所長", name: "范秉航", code: "Neo3" },
+      { company: "永恆突觸 共同創辦人", name: "周翰森 Hanson", code: "Neo3" },
+      { company: "犀動智能 創辦人兼執行長", name: "沈書緯 Vic", code: "Neo3" },
+      { company: "CIC Fukuoka General Manager", name: "Masanori Torigoe", code: "Neo3" },
+      { company: "經濟部 部長", name: "龔明鑫", code: "Neo3" },
+      { company: "臺灣證券交易所 總經理", name: "李愛玲", code: "Neo3" },
+      { company: "遠傳電信股份有限公司 協理", name: "張嘉容", code: "Neo3" },
+      { company: "勤業眾信 新創事業服務團隊負責人", name: "李紹平", code: "Pitch1120" },
+      { company: "勤業眾信 總裁", name: "柯志賢", code: "Pitch1120" },
+      { company: "勤業眾信聯合會計師事務所 專案主任", name: "何亞蓁 Belle", code: "Pitch1120" },
+      { company: "勤業眾信聯合會計師事務所 經理", name: "謝佩紋 Irene", code: "Pitch1120" },
+      { company: "台大創創中心 執行長", name: "林文欽 Vincent", code: "Pitch1120" },
+      { company: "臺北醫學大學 校長", name: "吳麥斯", code: "Pitch1120" },
+      { company: "創業者共創平台基金會 董事長", name: "林志垚", code: "20-1" },
+      { company: "COMMEET 智能費用管理系統 執行長", name: "洪明楓", code: "20-1" },
+      { company: "CreAlien Co-founder & VP", name: "Jasmine Tseng", code: "20-1" },
+      { company: "MirWork 創辦人兼執行長", name: "Kevin Hsieh", code: "20-1" },
+      { company: "OakMega Co-founder & CEO", name: "蔡柏宣（Porsche Tsai）", code: "20-1" },
+      { company: "Taboola 產品開發及研發副總裁", name: "俞寧寧", code: "20-1" },
+      { company: "Taiwan Global Angels 創辦人暨執行長", name: "詹益鑑", code: "20-1" },
+      { company: "Unilite Inc. CFO", name: "Phenix", code: "20-1" },
+      { company: "dentall台灣牙e通 創辦人暨執行長", name: "陳欽章 Casper", code: "20-1" },
+      { company: "凌波股份有限公司 創辦人", name: "賴宗佑", code: "20-2" },
+      { company: "博世科智能股份有限公司 創辦人暨策略長", name: "陳文峰", code: "20-2" },
+      { company: "台大創創中心 執行長", name: "林文欽", code: "20-2" },
+      { company: "奇翼醫電 創辦人兼執行長", name: "李維中 David Lee", code: "20-2" },
+      { company: "昊博國際服務有限公司 CEO", name: "張亞菁", code: "20-2" },
+      { company: "昊博國際服務有限公司 CTO", name: "陳信源", code: "20-2" },
+      { company: "星河智能 GIH CO., LTD. 執行長", name: "Jerry Yiu 姚智懷", code: "20-2" },
+      { company: "本一科技股份有限公司 策略長", name: "唐源駿", code: "20-2" },
+      { company: "橡子園顧問有限公司 董事長", name: "陳五福", code: "20-2" },
+      { company: "灼見運動數據股份有限公司 創辦人兼執行長", name: "徐樂", code: "20-3" },
+      { company: "瑞利光智能 RVi CEO", name: "何志浩", code: "20-3" },
+      { company: "瑞利光智能 RVi CTO", name: "何志祥", code: "20-3" },
+      { company: "研華科技 共同創辦人", name: "何春盛", code: "20-3" },
+      { company: "繁晶科技 執行長", name: "王易凡", code: "20-3" },
+      { company: "聚動分子 共同創辦人/營運長", name: "蔡傑羽", code: "20-3" },
+      { company: "赫侖股份有限公司 Co-founder", name: "曾鼎中", code: "20-3" },
+      { company: "重量科技 KryptoGO 創辦人暨執行長", name: "歐曜瑋 Kordan", code: "20-3" },
+      { company: "金箍棒智慧物業管理 執行長", name: "田智娟", code: "20-3" },
+      { company: "中華電信 投資事業處 投資經理", name: "李英宗 Ying-Tsung Lee", code: "20-4" },
+      { company: "合庫金控創投 國內投資主管", name: "葛忠洋 Jonathan Ko", code: "20-4" },
+      { company: "永豐餘典範投資 經理", name: "林倚盟 Mark Lin", code: "20-4" },
+      { company: "永豐餘典範投資 經理", name: "周婉如 Jessie Chou", code: "20-4" },
+      { company: "緯創資通 投資經理", name: "劉力豪 Billy Liu", code: "20-4" },
+      { company: "緯創資通 投資經理", name: "郭彥廷 Oscar Kuo", code: "20-4" },
+      { company: "Author of Hooked and Indistractable Behavior Design Expert", name: "Nir Eyal", code: "TTA" },
+      { company: "Edison International Founder & CEO", name: "Cheryl Edison", code: "TTA" },
+      { company: "One Way Ventures Managing Partner", name: "Eugene Malobrodsky", code: "TTA" },
+      { company: "Open Tech Ventures Sr. Associate & Entrepreneur in Residence", name: "Arjun Rai", code: "TTA" },
+      { company: "Pilot.com Head of RevOps", name: "Amy Chen", code: "TTA" },
+      { company: "TribeROI Founder", name: "Mark Birch", code: "TTA" },
+      { company: "AI 導入顧問／AI 陪跑教練 AI Adoption Consultant & Coach", name: "陳盈臻 Vivi Chen", code: "D3-14" },
+      { company: "KPMG 顧問部副總 Director", name: "張智淵 Leo Chang", code: "D3-14" },
+      { company: "Mucker Capital 共同創辦人暨合夥人 Co-Founder & Partner", name: "許惟量 William Hsu", code: "請洽櫃檯確認" },
+      { company: "Overview 共同創辦人暨技術長 Co-Founder and CTO", name: "高曉陽 Xiaoyang Kao", code: "D3-14" },
+      { company: "資誠聯合會計師事務所 PwC Taiwan 審計服務營運長 Assurance Leader", name: "林永智 Frank Lin", code: "D3-14" },
+      { company: "Silicon Corridor / YouTube 創辦人／共同創辦人 Founder／Co-founder", name: "陳士駿 Steve Chen", code: "D3-14" },
+      { company: "Startup Island Taiwan 矽谷新創基地 Head of Silicon Valley Hub Startup Island Taiwan 總監 Director", name: "蘇祐立 Uly Su", code: "D3-14" },
+      { company: "Storm Ventures 合夥人 Partner", name: "Minjoo Kim", code: "D3-14" },
+      { company: "Tesoro Venture Capital 創辦人暨管理合夥人 Founder & Managing Partner", name: "Andy Lombard", code: "請洽櫃檯確認" },
+      { company: "Qisda Corporation Head of Overseas Investment", name: "Natalia Tang", code: "D3-14" },
+      { company: "台灣地方創生基金會 董事長", name: "陳美伶", code: "D3-14" },
+      { company: "向天歌創新農業 創辦人暨執行長", name: "蔡英地", code: "D3-14" },
+      { company: "豐漁水產養殖 創辦人暨執行長", name: "許宏德", code: "D3-14" },
+      { company: "金山漫遊 營運長", name: "賴家華", code: "D3-14" },
+      { company: "Redia Labs 創辦人暨執行長", name: "吳睿誠", code: "D3-AI" },
+      { company: "SIC 永續影響力投資 合夥人暨投資公司管理合夥人", name: "謝文淵", code: "D3-AI" },
+      { company: "Signalsurf 共同創辦人", name: "林峻維", code: "D3-AI" },
+      { company: "SparkLabs Taiwan 總監", name: "簡夢瑤", code: "D3-AI" },
+      { company: "基石創投 合夥人", name: "陳俊頴", code: "D3-AI" },
+      { company: "好奇心創意 創辦人暨執行長", name: "陳伯麒", code: "D3-AI" },
+      { company: "臺北市政府青年局 副局長", name: "林秀穗", code: "D3-AI" },
+      { company: "和泰汽車 策略研究及投資室 課長", name: "曹惠棠", code: "21-CVC" },
+      { company: "新光三越創投 董事長", name: "王楠淵", code: "21-CVC" },
+      { company: "相聚國際股份有限公司 基金投資", name: "謝孟芝 Mindy Hsieh", code: "21-CVC" },
+      { company: "和泰汽車 策略研究及投資室 高專", name: "梁耀任", code: "21-CVC" },
+      { company: "達盈管理顧問股份有限公司", name: "Sabrina Hong", code: "D1-上午" },
+      { company: "安發天使投資股份有限公司", name: "Jeff Chuang", code: "D1-上午" },
+      { company: "台大校友創業投資管理顧問股份有限公司", name: "Lu Louie", code: "D1-上午" },
+      { company: "基石創業投資股份有限公司", name: "Chen Adrian", code: "D1-上午" },
+      { company: "基石創業投資股份有限公司", name: "李玄光", code: "D1-上午" },
+      { company: "股感媒體科技股份有限公司", name: "李東軒", code: "D1-上午" },
+      { company: "股感媒體科技股份有限公司", name: "郭博維", code: "D1-上午" },
+      { company: "永續影響力股份有限公司", name: "何承翰 Carter Ho", code: "D1-上午" },
+      { company: "永續影響力股份有限公司", name: "陳如芬 Rufen Chen", code: "D1-上午" },
+      { company: "永續影響力股份有限公司", name: "鐘基啓 Jacky Chung", code: "D1-上午" },
+      { company: "永續影響力股份有限公司", name: "黃紹麟 Max Huang", code: "D1-下午" },
+      { company: "永續影響力股份有限公司", name: "TY Shao", code: "D1-下午" },
+      { company: "永續影響力股份有限公司", name: "張毅超 Ernest Chang", code: "D1-下午" },
+      { company: "永續影響力股份有限公司", name: "劉漢意 Allison Liu", code: "D1-下午" },
+      { company: "永續影響力股份有限公司", name: "周佐辰 Steve Chou", code: "D2-下午" },
+      { company: "永續影響力股份有限公司", name: "呂國豪 Mark Lu", code: "D2-下午" },
+      { company: "永續影響力股份有限公司", name: "吳育瑞 Ray Wu", code: "Day3" },
+      { company: "永續影響力股份有限公司", name: "沈冠男 Kevin Shen", code: "Day3" },
+      { company: "永續影響力股份有限公司", name: "邱翊 Chiu Yi", code: "Day3" },
+      { company: "資誠聯合會計師事務所", name: "高語彤 Tiffany Gao", code: "D1-上午" },
+      { company: "一春天使有限公司", name: "林伯翰", code: "D1-上午" },
+      { company: "一春天使有限公司", name: "黃呈智", code: "D1-上午" },
+      { company: "一春天使有限公司", name: "邱依虹", code: "D1-上午" },
+      { company: "安永聯合會計師事務所", name: "袁琬淳", code: "D1-下午" },
+      { company: "安永聯合會計師事務所", name: "黎書豪", code: "D1-下午" },
+      { company: "勤業眾信聯合會計師事務所", name: "李紹平", code: "D1-下午" },
+      { company: "勤業眾信聯合會計師事務所", name: "何亞蓁", code: "D1-下午" },
+      { company: "矽谷橡子園太平洋基金", name: "Wu David", code: "D1-下午" },
+      { company: "NECネッツエスアイ", name: "TAKAHASHI HIROFUMI 高橋 博文", code: "D1-下午" },
+      { company: "NECネッツエスアイ", name: "HATAKEYAMA YOSHINORI 畠山 義徳", code: "D1-下午" },
+      { company: "NECネッツエスアイ", name: "NAKATA KEISUKE 中田 啓亮", code: "D1-下午" },
+      { company: "NECネッツエスアイ", name: "ETO MIZUKI 衛藤 深月", code: "D1-下午" },
+      { company: "NECネッツエスアイ", name: "ISHIKURA TATSUHIKO 石倉 辰彦", code: "D1-下午" },
+      { company: "NECネッツエスアイ", name: "KASAMATSU RYUNOSUKE 笠松 竜之介", code: "D1-下午" },
+      { company: "斯伯克國際創業投資有限公司", name: "Regina Lo", code: "D2-上午" },
+      { company: "心元資本創業投資股份有限公司", name: "Liu Vivian", code: "D2-上午" },
+      { company: "センターピア株式会社", name: "Ueno Yoshihisa 上野 芳久（窗口 Nora Tsai）", code: "D2-上午" },
+      { company: "株式会社ニリック", name: "Tsai Nora", code: "D2-上午" },
+      { company: "株式会社ニリック", name: "UENO SHUNKI 上野 峻基", code: "D2-上午" },
+      { company: "中華電信股份有限公司", name: "邱柔毓", code: "D2-下午" },
+      { company: "中華電信股份有限公司", name: "林靖娟", code: "D2-下午" },
+      { company: "緯創資通股份有限公司", name: "吳亞璇", code: "D2-下午" },
+      { company: "緯創資通股份有限公司", name: "沈盈汝", code: "D2-下午" },
+      { company: "遠傳電信股份有限公司", name: "Chang Reneata", code: "Day3" },
+      { company: "合利忻管理顧問股份有限公司", name: "蔡慶祥", code: "Day3" },
+      { company: "合利忻管理顧問股份有限公司", name: "朱培森", code: "Day3" },
+      { company: "合利忻管理顧問股份有限公司", name: "沈亞瑭", code: "Day3" }
+    ];
+
+    /**
+     * ==========================================================================
+     * 2. 4-LANGUAGE DICTIONARY (繁體中文 / English / 日本語 / 한국어)
+     * ==========================================================================
+     */
+    const I18N = {
+      zh: {
+        headerTitle: "貴賓、講師報到查詢",
+        headerSubtitle: "VIP & Speaker Check-in",
+        step1Title: "輸入公司名稱",
+        step1Desc: "支援中文、英文或日文開頭字元查詢",
+        step2Title: "點選本人資料",
+        step2Desc: "從下方清單確認您的公司與姓名",
+        step3Title: "將螢幕轉向工作人員",
+        step3Desc: "顯示「對應編號」後請轉給櫃檯取證",
+        searchLabel: "公司名稱查詢",
+        demoBtn: "✨ 範例預覽：巨思文化 / BNEXT",
+        searchPlaceholder: "請輸入公司名稱開頭 (例: 巨思文化 / BNEXT)",
+        selectPrompt: "請點選您的公司與姓名：",
+        tagPrefix: "首字相符",
+        tagContains: "包含關鍵字",
+        noMatchTitle: "找不到相符的資料",
+        noMatchDesc: "請嘗試輸入公司簡稱（中、英、日文皆可），或直接洽詢現場工作人員。",
+        resultCompanyLabel: "公司 / 職稱 · 貴賓姓名",
+        resultCodeLabel: "對應編號",
+        unassignedCode: "請洽櫃檯確認",
+        turnScreenHint: "請將螢幕轉向工作人員核對領證",
+        nextGuestBtn: "下一位查詢（一鍵清除）",
+        footerStatus: (n) => `已載入 ${n} 筆正式名單（支援離線查詢）`,
+        footerModeBuiltIn: "本機內建名單 · 100% 離線可用",
+        footerModeCustom: "本機自訂快取名單 · 100% 離線可用",
+        modalTitle: "後台名單管理（本機離線快取）",
+        modalSub: "支援匯入 CSV / TXT 檔案或貼上 3 欄試算表資料（公司名稱｜名字｜對應編號）",
+        modalFileTitle: "1. 選擇本機 CSV / TXT 檔案匯入",
+        modalFileDesc: "欄位順序：第 1 欄「公司名稱」、第 2 欄「名字」、第 3 欄「對應編號」。匯入後將儲存於此裝置瀏覽器中。",
+        modalFileBtn: "📂 選擇本機 CSV / TXT 檔案匯入",
+        modalPasteTitle: "2. 手動貼上試算表文字覆蓋更新",
+        modalPasteDesc: "直接從 Google Sheet 或 Excel 全選複製（Tab 分隔或逗號分隔）貼入下方文字框並套用：",
+        modalApplyBtn: "套用貼上的資料",
+        modalResetBtn: "重設回內建 440 筆正式名單"
+      },
+      en: {
+        headerTitle: "VIP & Speaker Check-in",
+        headerSubtitle: "Badge & Desk Locator",
+        step1Title: "Enter Company Name",
+        step1Desc: "Type the starting letters in English, Chinese, or Japanese",
+        step2Title: "Select Your Name",
+        step2Desc: "Tap your company and name from the list below",
+        step3Title: "Show Screen to Staff",
+        step3Desc: "Turn the iPad toward our desk staff once your code appears",
+        searchLabel: "COMPANY NAME SEARCH",
+        demoBtn: "✨ Sample Preview: BNEXT / 巨思文化",
+        searchPlaceholder: "Type company starting letters (e.g., Google, BNEXT)",
+        selectPrompt: "Tap your company & name:",
+        tagPrefix: "Starts with",
+        tagContains: "Contains",
+        noMatchTitle: "No matching records found",
+        noMatchDesc: "Try typing a shorter company name or ask our check-in staff for assistance.",
+        resultCompanyLabel: "COMPANY / TITLE · GUEST NAME",
+        resultCodeLabel: "ASSIGNED CODE / DESK",
+        unassignedCode: "Please Check at Desk",
+        turnScreenHint: "Please turn the screen toward our staff member",
+        nextGuestBtn: "Next Guest (Clear)",
+        footerStatus: (n) => `${n} official records loaded (Offline Ready)`,
+        footerModeBuiltIn: "Built-in Roster · 100% Offline Capable",
+        footerModeCustom: "Custom Cached Roster · 100% Offline Capable",
+        modalTitle: "Roster Management (Local Offline Cache)",
+        modalSub: "Import CSV/TXT or paste 3-column spreadsheet data (Company | Name | Code)",
+        modalFileTitle: "1. Import Local CSV / TXT File",
+        modalFileDesc: "Columns: 1) Company Name, 2) Guest Name, 3) Assigned Code. Stored locally on this device.",
+        modalFileBtn: "📂 Choose Local CSV / TXT File",
+        modalPasteTitle: "2. Paste Spreadsheet Text to Update",
+        modalPasteDesc: "Copy rows directly from Google Sheets or Excel (Tab or Comma separated) and paste below:",
+        modalApplyBtn: "Apply Pasted Data",
+        modalResetBtn: "Reset to Built-in 440 Records"
+      },
+      ja: {
+        headerTitle: "VIP・登壇者 受付検索",
+        headerSubtitle: "VIP & Speaker Check-in",
+        step1Title: "会社名を入力",
+        step1Desc: "日本語・英語・中国語の先頭文字で検索できます",
+        step2Title: "お名前を選択",
+        step2Desc: "候補リストからご自身の会社名とお名前をタップ",
+        step3Title: "画面をスタッフへ提示",
+        step3Desc: "「対応番号」が表示されたらiPadをスタッフへお向けください",
+        searchLabel: "会社名検索",
+        demoBtn: "✨ サンプル表示：巨思文化 / BNEXT",
+        searchPlaceholder: "会社名の先頭を入力 (例: Google / BNEXT)",
+        selectPrompt: "該当する会社名とお名前をタップしてください：",
+        tagPrefix: "先頭一致",
+        tagContains: "部分一致",
+        noMatchTitle: "一致するデータが見つかりません",
+        noMatchDesc: "会社名の一部を入力するか、受付スタッフまでお声がけください。",
+        resultCompanyLabel: "会社名・役職 · お名前",
+        resultCodeLabel: "対応番号",
+        unassignedCode: "受付カウンターで確認",
+        turnScreenHint: "この画面をスタッフにお見せください",
+        nextGuestBtn: "次の検索（クリア）",
+        footerStatus: (n) => `公式リスト ${n} 件を読込済（オフライン対応）`,
+        footerModeBuiltIn: "内蔵リスト · オフライン完全対応",
+        footerModeCustom: "カスタム保存リスト · オフライン完全対応",
+        modalTitle: "名簿データ管理（ローカル保存）",
+        modalSub: "CSV/TXTファイルの読込、または3列データ（会社名｜氏名｜対応番号）の貼付に対応",
+        modalFileTitle: "1. ローカル CSV / TXT ファイルを読込",
+        modalFileDesc: "列順：1列目「会社名」、2列目「氏名」、3列目「対応番号」。端末内に保存されます。",
+        modalFileBtn: "📂 CSV / TXT ファイルを選択",
+        modalPasteTitle: "2. スプレッドシートのテキストを貼り付けて更新",
+        modalPasteDesc: "GoogleスプレッドシートやExcelからコピーして貼り付けてください：",
+        modalApplyBtn: "貼り付けたデータを適用",
+        modalResetBtn: "内蔵の440件公式リストに戻す"
+      },
+      ko: {
+        headerTitle: "VIP 및 연사 등록 조회",
+        headerSubtitle: "VIP & Speaker Check-in",
+        step1Title: "회사명 입력",
+        step1Desc: "중국어, 영어, 일본어 첫 글자로 검색 가능",
+        step2Title: "본인 정보 선택",
+        step2Desc: "아래 목록에서 소속 회사와 성함을 탭하세요",
+        step3Title: "직원에게 화면 제시",
+        step3Desc: "「해당 번호」가 표시되면 iPad를 직원에게 보여주세요",
+        searchLabel: "회사명 조회",
+        demoBtn: "✨ 샘플 미리보기: 巨思文化 / BNEXT",
+        searchPlaceholder: "회사명 첫 글자 입력 (예: Google, BNEXT)",
+        selectPrompt: "해당하는 회사와 성함을 선택해 주세요:",
+        tagPrefix: "첫 글자 일치",
+        tagContains: "키워드 포함",
+        noMatchTitle: "일치하는 정보를 찾을 수 없습니다",
+        noMatchDesc: "회사명의 일부를 입력하거나 안내 데스크 직원에게 문의해 주세요.",
+        resultCompanyLabel: "회사 / 직함 · 성함",
+        resultCodeLabel: "해당 번호",
+        unassignedCode: "안내 데스크 확인 필요",
+        turnScreenHint: "이 화면을 데스크 직원에게 보여주세요",
+        nextGuestBtn: "다음 조회 (초기화)",
+        footerStatus: (n) => `공식 명단 ${n}건 로드됨 (오프라인 조회 지원)`,
+        footerModeBuiltIn: "내장 명단 · 100% 오프라인 사용 가능",
+        footerModeCustom: "사용자 지정 캐시 명단 · 오프라인 지원",
+        modalTitle: "명단 관리 (로컬 오프라인 캐시)",
+        modalSub: "CSV/TXT 파일 가져오기 또는 3열 데이터(회사명｜이름｜해당 번호) 붙여넣기 지원",
+        modalFileTitle: "1. 로컬 CSV / TXT 파일 가져오기",
+        modalFileDesc: "열 순서: 1열 '회사명', 2열 '이름', 3열 '해당 번호'. 이 기기의 브라우저에 저장됩니다.",
+        modalFileBtn: "📂 로컬 CSV / TXT 파일 선택",
+        modalPasteTitle: "2. 스프레드시트 텍스트 붙여넣기",
+        modalPasteDesc: "Google 시트나 Excel에서 복사하여 아래에 붙여넣으세요:",
+        modalApplyBtn: "붙여넣은 데이터 적용",
+        modalResetBtn: "내장된 440건 공식 명단으로 초기화"
+      }
+    };
+
+    const STORAGE_KEY_ROSTER = "vip_speaker_roster_v2";
+    const STORAGE_KEY_LANG = "vip_speaker_lang_v2";
+
+    let currentLang = "zh";
+    let activeRecords = [];
+    let isCustomRoster = false;
+
+    /**
+     * ==========================================================================
+     * 3. INITIALIZATION
+     * ==========================================================================
+     */
+    window.addEventListener("DOMContentLoaded", () => {
+      try {
+        const savedLang = localStorage.getItem(STORAGE_KEY_LANG);
+        if (savedLang && I18N[savedLang]) {
+          currentLang = savedLang;
+        }
+
+        const cachedRoster = localStorage.getItem(STORAGE_KEY_ROSTER);
+        if (cachedRoster) {
+          const parsed = JSON.parse(cachedRoster);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            activeRecords = parsed;
+            isCustomRoster = true;
+          }
+        }
+      } catch (e) {
+        console.warn("Storage access fallback:", e);
+      }
+
+      if (activeRecords.length === 0) {
+        activeRecords = [...DEFAULT_DATA];
+        isCustomRoster = false;
+      }
+
+      setLanguage(currentLang);
+
+      const searchInput = document.getElementById("company-search");
+      searchInput.addEventListener("input", onSearchInput);
+    });
+
+    /**
+     * ==========================================================================
+     * 4. MULTI-LANGUAGE RENDERER
+     * ==========================================================================
+     */
+    function setLanguage(lang) {
+      if (!I18N[lang]) return;
+      currentLang = lang;
+      try {
+        localStorage.setItem(STORAGE_KEY_LANG, lang);
+      } catch (e) {}
+
+      const t = I18N[lang];
+
+      document.querySelectorAll(".lang-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
+      });
+
+      document.getElementById("ui-header-title").textContent = t.headerTitle;
+      document.getElementById("ui-header-subtitle").textContent = t.headerSubtitle;
+      document.getElementById("ui-step1-title").textContent = t.step1Title;
+      document.getElementById("ui-step1-desc").textContent = t.step1Desc;
+      document.getElementById("ui-step2-title").textContent = t.step2Title;
+      document.getElementById("ui-step2-desc").textContent = t.step2Desc;
+      document.getElementById("ui-step3-title").textContent = t.step3Title;
+      document.getElementById("ui-step3-desc").textContent = t.step3Desc;
+      document.getElementById("ui-search-label").textContent = t.searchLabel;
+      document.getElementById("ui-demo-btn").textContent = t.demoBtn;
+      document.getElementById("company-search").placeholder = t.searchPlaceholder;
+      document.getElementById("ui-select-prompt").textContent = t.selectPrompt;
+      document.getElementById("ui-no-match-title").textContent = t.noMatchTitle;
+      document.getElementById("ui-no-match-desc").textContent = t.noMatchDesc;
+      document.getElementById("ui-result-company-label").textContent = t.resultCompanyLabel;
+      document.getElementById("ui-result-code-label").textContent = t.resultCodeLabel;
+      document.getElementById("ui-turn-screen-hint").textContent = t.turnScreenHint;
+      document.getElementById("ui-next-guest-btn").textContent = t.nextGuestBtn;
+
+      // Modal translations
+      document.getElementById("modal-title").textContent = t.modalTitle;
+      document.getElementById("modal-sub").textContent = t.modalSub;
+      document.getElementById("ui-modal-file-title").textContent = t.modalFileTitle;
+      document.getElementById("ui-modal-file-desc").textContent = t.modalFileDesc;
+      document.getElementById("ui-modal-file-btn").textContent = t.modalFileBtn;
+      document.getElementById("ui-modal-paste-title").textContent = t.modalPasteTitle;
+      document.getElementById("ui-modal-paste-desc").textContent = t.modalPasteDesc;
+      document.getElementById("ui-modal-apply-btn").textContent = t.modalApplyBtn;
+      document.getElementById("ui-modal-reset-btn").textContent = t.modalResetBtn;
+
+      updateFooterStatus();
+
+      // Re-render candidates if query is active so badges update language
+      const currentQ = document.getElementById("company-search").value.trim();
+      if (currentQ && !document.getElementById("candidates-section").classList.contains("hidden")) {
+        performSearch(currentQ);
+      }
+    }
+
+    function updateFooterStatus() {
+      const t = I18N[currentLang];
+      document.getElementById("ui-footer-status").textContent = t.footerStatus(activeRecords.length);
+      document.getElementById("ui-footer-mode").textContent = isCustomRoster
+        ? t.footerModeCustom
+        : t.footerModeBuiltIn;
+    }
+
+    /**
+     * ==========================================================================
+     * 5. STRICT PREFIX-FIRST + CONTAINS FALLBACK SEARCH ENGINE
+     * ==========================================================================
+     */
+    function onSearchInput(e) {
+      const val = e.target.value;
+      const clearBtn = document.getElementById("clear-btn");
+
+      if (val.length > 0) {
+        clearBtn.classList.remove("hidden");
+      } else {
+        clearBtn.classList.add("hidden");
+      }
+
+      const q = val.trim();
+      if (!q) {
+        document.getElementById("candidates-section").classList.add("hidden");
+        document.getElementById("no-match-box").classList.add("hidden");
+        document.getElementById("result-card").classList.add("hidden");
+        return;
+      }
+
+      performSearch(q);
+    }
+
+    function performSearch(rawQuery) {
+      const q = rawQuery.trim().toLowerCase();
+      const isSingleAsciiLetter = /^[a-z]$/.test(q);
+
+      const prefixMatches = [];
+      const containsMatches = [];
+
+      for (let i = 0; i < activeRecords.length; i++) {
+        const rec = activeRecords[i];
+        const compTrimmed = (rec.company || "").trim();
+        const compLower = compTrimmed.toLowerCase();
+        const nameLower = (rec.name || "").trim().toLowerCase();
+
+        const isNoCompany = compTrimmed === "" || compTrimmed === "（無填寫公司）";
+
+        // 1. Strict prefix check at the very beginning of company string
+        // (Or guest name prefix if company is "(無填寫公司)")
+        const companyStartsWith = !isNoCompany && compLower.startsWith(q);
+        const noCompanyNameStartsWith = isNoCompany && nameLower.startsWith(q);
+
+        if (companyStartsWith || noCompanyNameStartsWith) {
+          prefixMatches.push({ record: rec, matchType: "prefix" });
+          continue;
+        }
+
+        // 2. Fallback contains match:
+        // When user types only 1 English letter (e.g. "L"), skip contains match to prevent "Co., Ltd." flooding
+        if (!isSingleAsciiLetter) {
+          const companyContains = !isNoCompany && compLower.includes(q);
+          const nameContains = nameLower.includes(q);
+          if (companyContains || nameContains) {
+            containsMatches.push({ record: rec, matchType: "contains" });
+          }
+        }
+      }
+
+      const combined = [...prefixMatches, ...containsMatches];
+      const candidatesSection = document.getElementById("candidates-section");
+      const noMatchBox = document.getElementById("no-match-box");
+      const resultCard = document.getElementById("result-card");
+
+      if (combined.length === 0) {
+        candidatesSection.classList.add("hidden");
+        resultCard.classList.add("hidden");
+        noMatchBox.classList.remove("hidden");
+        return;
+      }
+
+      noMatchBox.classList.add("hidden");
+      resultCard.classList.add("hidden");
+      renderCandidates(combined);
+      candidatesSection.classList.remove("hidden");
+    }
+
+    function renderCandidates(items) {
+      const listEl = document.getElementById("candidates-list");
+      listEl.innerHTML = "";
+      const t = I18N[currentLang];
+
+      // Cap displayed candidates at 50 for instant iPad responsiveness
+      const visibleItems = items.slice(0, 50);
+
+      visibleItems.forEach(({ record, matchType }) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "candidate-item";
+
+        const badgeClass = matchType === "prefix" ? "prefix" : "contains";
+        const badgeText = matchType === "prefix" ? t.tagPrefix : t.tagContains;
+
+        btn.innerHTML = `
+          <div class="candidate-main">
+            <div class="candidate-top-row">
+              <span class="match-badge ${badgeClass}">${escapeHtml(badgeText)}</span>
+              <span class="candidate-company">${escapeHtml(record.company)}</span>
+            </div>
+            <div class="candidate-person">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span>${escapeHtml(record.name)}</span>
+            </div>
+          </div>
+          <span class="candidate-arrow" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </span>
+        `;
+
+        btn.addEventListener("click", () => showResultCard(record));
+        listEl.appendChild(btn);
+      });
+    }
+
+    function showResultCard(record) {
+      const t = I18N[currentLang];
+      const resultCard = document.getElementById("result-card");
+      const codeBanner = document.getElementById("result-code-banner");
+      const companyEl = document.getElementById("result-company-text");
+      const personEl = document.getElementById("result-person-text");
+      const codeValEl = document.getElementById("result-code-value");
+
+      const rawCode = (record.code || "").trim();
+      const isUnassigned = !rawCode || rawCode === "請洽櫃檯確認";
+
+      companyEl.textContent = record.company || "（無填寫公司）";
+      personEl.textContent = record.name || "-";
+
+      if (isUnassigned) {
+        codeValEl.textContent = t.unassignedCode;
+        resultCard.classList.add("unassigned");
+        codeBanner.classList.add("unassigned");
+      } else {
+        codeValEl.textContent = rawCode;
+        resultCard.classList.remove("unassigned");
+        codeBanner.classList.remove("unassigned");
+      }
+
+      document.getElementById("candidates-section").classList.add("hidden");
+      document.getElementById("no-match-box").classList.add("hidden");
+      resultCard.classList.remove("hidden");
+
+      // Smoothly ensure the result card is fully in view on iPad
+      resultCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function triggerSamplePreview() {
+      const searchInput = document.getElementById("company-search");
+      searchInput.value = "巨思文化 / BNEXT";
+      document.getElementById("clear-btn").classList.remove("hidden");
+      showResultCard({
+        company: "巨思文化 / BNEXT",
+        name: "範例貴賓 VIP Guest",
+        code: "A-01"
+      });
+    }
+
+    function resetSearch() {
+      const searchInput = document.getElementById("company-search");
+      searchInput.value = "";
+      document.getElementById("clear-btn").classList.add("hidden");
+      document.getElementById("candidates-section").classList.add("hidden");
+      document.getElementById("no-match-box").classList.add("hidden");
+      document.getElementById("result-card").classList.add("hidden");
+      searchInput.focus();
+    }
+
+    /**
+     * ==========================================================================
+     * 6. ORGANIZER ADMIN MODAL (LOCAL CSV IMPORT / MANUAL PASTE / RESET)
+     * ==========================================================================
+     */
+    function openSettingsModal() {
+      hideModalFeedback();
+      document.getElementById("settings-modal").classList.remove("hidden");
+    }
+
+    function closeSettingsModal() {
+      document.getElementById("settings-modal").classList.add("hidden");
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const text = e.target.result;
+          const parsed = parseThreeColumnData(text);
+          if (parsed.length === 0) {
+            showModalFeedback("檔案內容為空或格式無法解析，請確認至少包含公司名稱、名字、對應編號。", false);
+            return;
+          }
+          saveCustomRoster(parsed);
+          showModalFeedback(`✅ 成功從檔案匯入 ${parsed.length} 筆名單，並已儲存於本機離線快取！`, true);
+        } catch (err) {
+          showModalFeedback("讀取檔案時發生錯誤，請確認檔案為 UTF-8 編碼的 CSV 或 TXT。", false);
+        }
+        event.target.value = "";
+      };
+      reader.readAsText(file, "UTF-8");
+    }
+
+    function applyPastedData() {
+      const raw = document.getElementById("paste-input").value;
+      if (!raw || !raw.trim()) {
+        showModalFeedback("請先在文字框中貼上試算表資料！", false);
+        return;
+      }
+
+      const parsed = parseThreeColumnData(raw);
+      if (parsed.length === 0) {
+        showModalFeedback("無法解析貼上的資料，請確認包含 3 欄（公司名稱、名字、對應編號）。", false);
+        return;
+      }
+
+      saveCustomRoster(parsed);
+      showModalFeedback(`✅ 已成功套用 ${parsed.length} 筆資料並儲存在本機！`, true);
+    }
+
+    function resetToBuiltInData() {
+      try {
+        localStorage.removeItem(STORAGE_KEY_ROSTER);
+      } catch (e) {}
+
+      activeRecords = [...DEFAULT_DATA];
+      isCustomRoster = false;
+      document.getElementById("paste-input").value = "";
+      updateFooterStatus();
+      resetSearch();
+      showModalFeedback(`✅ 已重設回內建的 ${DEFAULT_DATA.length} 筆正式名單！`, true);
+    }
+
+    function saveCustomRoster(records) {
+      activeRecords = records;
+      isCustomRoster = true;
+      try {
+        localStorage.setItem(STORAGE_KEY_ROSTER, JSON.stringify(records));
+      } catch (e) {
+        console.warn("LocalStorage save error:", e);
+      }
+      updateFooterStatus();
+      resetSearch();
+    }
+
+    function showModalFeedback(msg, isOk) {
+      const el = document.getElementById("modal-feedback");
+      el.textContent = msg;
+      el.className = `feedback-msg ${isOk ? "ok" : "err"}`;
+      el.classList.remove("hidden");
+    }
+
+    function hideModalFeedback() {
+      document.getElementById("modal-feedback").classList.add("hidden");
+    }
+
+    /**
+     * Parses CSV or TSV text supporting quoted multiline cells.
+     * Expected 3 columns: [Company / Title, Name, Assigned Code]
+     */
+    function parseThreeColumnData(text) {
+      const delimiter = text.includes("\t") ? "\t" : ",";
+      const rows = [];
+      let currentRow = [];
+      let currentCell = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        const next = text[i + 1];
+
+        if (ch === '"') {
+          if (inQuotes && next === '"') {
+            currentCell += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === delimiter && !inQuotes) {
+          currentRow.push(currentCell);
+          currentCell = "";
+        } else if ((ch === "\r" || ch === "\n") && !inQuotes) {
+          if (ch === "\r" && next === "\n") i++;
+          currentRow.push(currentCell);
+          rows.push(currentRow);
+          currentRow = [];
+          currentCell = "";
+        } else {
+          currentCell += ch;
+        }
+      }
+
+      if (currentCell.length > 0 || currentRow.length > 0) {
+        currentRow.push(currentCell);
+        rows.push(currentRow);
+      }
+
+      const records = [];
+      for (let r = 0; r < rows.length; r++) {
+        const cols = rows[r].map((c) => c.replace(/\s+/g, " ").trim());
+        const col0 = cols[0] || "";
+        const col1 = cols[1] || "";
+        const col2 = cols[2] || "";
+
+        // Skip empty rows
+        if (!col0 && !col1 && !col2) continue;
+
+        // Skip repeated header rows
+        if (
+          (col0.includes("公司") && (col1.includes("名字") || col1.includes("講師名"))) ||
+          col2 === "報到站分類"
+        ) {
+          continue;
+        }
+
+        records.push({
+          company: col0 || "（無填寫公司）",
+          name: col1 || "-",
+          code: col2 || "請洽櫃檯確認"
+        });
+      }
+
+      return records;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
